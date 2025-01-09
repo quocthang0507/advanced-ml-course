@@ -1,3 +1,3 @@
-# Housing Price with Machine Learning methods
+# Advanced Machine Learning course
 
-This repository is included in Exercise 1 of Advanced Machine Learning course.
+This repository contains many datasets used in the course.
