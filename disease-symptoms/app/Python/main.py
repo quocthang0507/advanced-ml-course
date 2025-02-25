@@ -11,7 +11,7 @@ from sklearn.model_selection import GridSearchCV
 from imblearn.over_sampling import SMOTE
 
 # Variable to control whether to show confusion matrix
-show_confusion_matrix = True
+show_confusion_matrix = False
 
 def random_forest(X_train, X_test, y_train, y_test):
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
