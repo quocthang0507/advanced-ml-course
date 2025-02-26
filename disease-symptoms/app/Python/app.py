@@ -1,13 +1,13 @@
 import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox
-from sklearn.externals import joblib
+import joblib
 
 class DiseasePredictor(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.model = joblib.load('disease-symptoms/app/Python/models/trained/random_forest_model.pkl')
+        self.model = joblib.load('disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
         self.symptoms = [
             'Sốt', 'Ho', 'Mệt mỏi', 'Khó thở', 'Tuổi', 'Giới tính', 'Huyết áp', 'Mức cholesterol'
         ]
