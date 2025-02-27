@@ -101,7 +101,7 @@ def scale_data(X_train, X_test):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    return X_train_scaled, X_test_scaled
+    return pd.DataFrame(X_train_scaled, columns=X_train.columns), pd.DataFrame(X_test_scaled, columns=X_test.columns)
 
 
 def load_and_preprocess_data(data_path, target_column):
@@ -140,12 +140,15 @@ datasets = {
     "dt2.csv": "prognosis"
 }
 
+# Get the root path of the project
+root_path = Path(__file__).parent.parent.parent
+
 # Run models on each dataset
 for dataset, target_column in datasets.items():
     global dataset_name
     print(f"\nResults in {dataset}:")
 
-    data_path = f'E:/GitHub/advanced-ml-course/disease-symptoms/data/{dataset}'
+    data_path = root_path / f'data/{dataset}'
     try:
         X_train, X_test, y_train, y_test = load_and_preprocess_data(
             data_path, target_column)
