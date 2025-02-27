@@ -6,11 +6,15 @@ import joblib
 class DiseasePredictor(QWidget):
     def __init__(self):
         super().__init__()
-        self.model = joblib.load('E:/GitHub/advanced-ml-course/disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
+        self.model, self.feature_names = self.load_model('E:/GitHub/advanced-ml-course/disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
         self.symptoms = [
             'Sốt', 'Ho', 'Mệt mỏi', 'Khó thở', 'Tuổi', 'Giới tính', 'Huyết áp', 'Mức cholesterol'
         ]
         self.initUI()
+
+    def load_model(self, filepath):
+        model_data = joblib.load(filepath)
+        return model_data['model'], model_data.get('feature_names', None)
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -62,7 +66,7 @@ class DiseasePredictor(QWidget):
             elif isinstance(widget, QSpinBox):
                 input_data[symptom] = widget.value()
 
-        input_df = pd.DataFrame([input_data])
+        input_df = pd.DataFrame([input_data], columns=self.feature_names)
         prediction = self.model.predict(input_df)
         self.result_label.setText(f'Bệnh dự đoán: {prediction[0]}')
 

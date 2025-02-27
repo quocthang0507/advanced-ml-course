@@ -23,7 +23,7 @@ def random_forest(X_train, X_test, y_train, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
-    save_model(clf, f'disease-symptoms/app/Python/models/trained/random_forest_model_{dataset_name}.pkl')
+    save_model(clf, f'disease-symptoms/app/Python/models/trained/random_forest_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
 
     return accuracy, report
 
@@ -35,7 +35,7 @@ def decision_tree(X_train, X_test, y_train, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
-    save_model(clf, f'disease-symptoms/app/Python/models/trained/decision_tree_model_{dataset_name}.pkl')
+    save_model(clf, f'disease-symptoms/app/Python/models/trained/decision_tree_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     
     return accuracy, report
 
@@ -47,7 +47,7 @@ def svm(X_train, X_test, y_train, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
-    save_model(clf, f'disease-symptoms/app/Python/models/trained/svm_model_{dataset_name}.pkl')
+    save_model(clf, f'disease-symptoms/app/Python/models/trained/svm_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     
     return accuracy, report
 
@@ -59,7 +59,7 @@ def logistic_regression(X_train, X_test, y_train, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
-    save_model(clf, f'disease-symptoms/app/Python/models/trained/logistic_regression_model_{dataset_name}.pkl')
+    save_model(clf, f'disease-symptoms/app/Python/models/trained/logistic_regression_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     
     return accuracy, report
 
@@ -71,7 +71,7 @@ def gradient_boosting(X_train, X_test, y_train, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
-    save_model(clf, f'disease-symptoms/app/Python/models/trained/gradient_boosting_model_{dataset_name}.pkl')
+    save_model(clf, f'disease-symptoms/app/Python/models/trained/gradient_boosting_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     
     return accuracy, report
 
