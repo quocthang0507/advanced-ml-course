@@ -6,11 +6,11 @@ import joblib
 class DiseasePredictor(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
-        self.model = joblib.load('disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
+        self.model = joblib.load('E:/GitHub/advanced-ml-course/disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
         self.symptoms = [
             'Sốt', 'Ho', 'Mệt mỏi', 'Khó thở', 'Tuổi', 'Giới tính', 'Huyết áp', 'Mức cholesterol'
         ]
+        self.initUI()
 
     def initUI(self):
         self.layout = QVBoxLayout()

@@ -10,12 +10,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from imblearn.over_sampling import SMOTE
 from models.model_handlers import save_model, load_model
+from pathlib import Path
+import os
 
 # Variable to control whether to show confusion matrix
 show_confusion_matrix = False
 
-
-def random_forest(X_train, X_test, y_train, y_test, dataset_name):
+def random_forest(X_train, X_test, y_train, y_test):
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -27,7 +28,7 @@ def random_forest(X_train, X_test, y_train, y_test, dataset_name):
     return accuracy, report
 
 
-def decision_tree(X_train, X_test, y_train, y_test, dataset_name):
+def decision_tree(X_train, X_test, y_train, y_test):
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -39,7 +40,7 @@ def decision_tree(X_train, X_test, y_train, y_test, dataset_name):
     return accuracy, report
 
 
-def svm(X_train, X_test, y_train, y_test, dataset_name):
+def svm(X_train, X_test, y_train, y_test):
     clf = SVC(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -51,7 +52,7 @@ def svm(X_train, X_test, y_train, y_test, dataset_name):
     return accuracy, report
 
 
-def logistic_regression(X_train, X_test, y_train, y_test, dataset_name):
+def logistic_regression(X_train, X_test, y_train, y_test):
     clf = LogisticRegression(random_state=42, max_iter=1000)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -63,7 +64,7 @@ def logistic_regression(X_train, X_test, y_train, y_test, dataset_name):
     return accuracy, report
 
 
-def gradient_boosting(X_train, X_test, y_train, y_test, dataset_name):
+def gradient_boosting(X_train, X_test, y_train, y_test):
     clf = GradientBoostingClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -141,9 +142,10 @@ datasets = {
 
 # Run models on each dataset
 for dataset, target_column in datasets.items():
+    global dataset_name
     print(f"\nResults in {dataset}:")
 
-    data_path = f'/workspaces/advanced-ml-course/disease-symptoms/data/{dataset}'
+    data_path = f'disease-symptoms/data/{dataset}'
     try:
         X_train, X_test, y_train, y_test = load_and_preprocess_data(
             data_path, target_column)
@@ -158,7 +160,8 @@ for dataset, target_column in datasets.items():
 
         reports = {}
         for model_name, model_func in models.items():
-            accuracy, report = model_func(X_train, X_test, y_train, y_test, dataset)
+            dataset_name = Path(dataset).stem
+            accuracy, report = model_func(X_train, X_test, y_train, y_test)
             print(f"{model_name} Accuracy on {dataset}:", accuracy)
             reports[model_name] = report
 
