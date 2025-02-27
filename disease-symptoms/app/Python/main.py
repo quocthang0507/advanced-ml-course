@@ -16,7 +16,12 @@ import os
 # Variable to control whether to show confusion matrix
 show_confusion_matrix = False
 
-def random_forest(X_train, X_test, y_train, y_test):
+def save_class_mapping(class_mapping, file_path):
+    with open(file_path, 'w') as f:
+        for index, class_name in class_mapping.items():
+            f.write(f"{index},{class_name}\n")
+
+def random_forest(X_train, X_test, y_train, y_test, class_mapping):
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -24,11 +29,12 @@ def random_forest(X_train, X_test, y_train, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/random_forest_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
+    save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/random_forest_class_mapping_{dataset_name}.csv')
 
     return accuracy, report
 
 
-def decision_tree(X_train, X_test, y_train, y_test):
+def decision_tree(X_train, X_test, y_train, y_test, class_mapping):
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -36,11 +42,12 @@ def decision_tree(X_train, X_test, y_train, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/decision_tree_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
+    save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/decision_tree_class_mapping_{dataset_name}.csv')
     
     return accuracy, report
 
 
-def svm(X_train, X_test, y_train, y_test):
+def svm(X_train, X_test, y_train, y_test, class_mapping):
     clf = SVC(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -48,11 +55,12 @@ def svm(X_train, X_test, y_train, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/svm_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
+    save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/svm_class_mapping_{dataset_name}.csv')
     
     return accuracy, report
 
 
-def logistic_regression(X_train, X_test, y_train, y_test):
+def logistic_regression(X_train, X_test, y_train, y_test, class_mapping):
     clf = LogisticRegression(random_state=42, max_iter=1000)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -60,11 +68,12 @@ def logistic_regression(X_train, X_test, y_train, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/logistic_regression_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
+    save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/logistic_regression_class_mapping_{dataset_name}.csv')
     
     return accuracy, report
 
 
-def gradient_boosting(X_train, X_test, y_train, y_test):
+def gradient_boosting(X_train, X_test, y_train, y_test, class_mapping):
     clf = GradientBoostingClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -72,6 +81,7 @@ def gradient_boosting(X_train, X_test, y_train, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/gradient_boosting_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
+    save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/gradient_boosting_class_mapping_{dataset_name}.csv')
     
     return accuracy, report
 
@@ -131,7 +141,10 @@ def load_and_preprocess_data(data_path, target_column):
     smote = SMOTE(random_state=42)
     X_train, y_train = smote.fit_resample(X_train, y_train)
 
-    return X_train, X_test, y_train, y_test
+    # Create class mapping
+    class_mapping = {index: class_name for index, class_name in enumerate(y.unique())}
+
+    return X_train, X_test, y_train, y_test, class_mapping
 
 
 # Define datasets and target columns
@@ -150,7 +163,7 @@ for dataset, target_column in datasets.items():
 
     data_path = root_path / f'data/{dataset}'
     try:
-        X_train, X_test, y_train, y_test = load_and_preprocess_data(
+        X_train, X_test, y_train, y_test, class_mapping = load_and_preprocess_data(
             data_path, target_column)
 
         models = {
@@ -164,7 +177,7 @@ for dataset, target_column in datasets.items():
         reports = {}
         for model_name, model_func in models.items():
             dataset_name = Path(dataset).stem
-            accuracy, report = model_func(X_train, X_test, y_train, y_test)
+            accuracy, report = model_func(X_train, X_test, y_train, y_test, class_mapping)
             print(f"{model_name} Accuracy on {dataset}:", accuracy)
             reports[model_name] = report
 

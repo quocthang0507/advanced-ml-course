@@ -2,19 +2,34 @@ import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox, QSpinBox
 import joblib
+from pathlib import Path
 
 class DiseasePredictor(QWidget):
     def __init__(self):
         super().__init__()
-        self.model, self.feature_names = self.load_model('E:/GitHub/advanced-ml-course/disease-symptoms/app/Python/models/trained/random_forest_model_dt1.pkl')
+        self.model, self.feature_names, self.class_mapping = self.load_model_and_mapping(
+            Path(__file__).parent / 'models/trained/random_forest_model_dt1.pkl',
+            Path(__file__).parent / 'models/trained/random_forest_class_mapping_dt1.csv'
+        )
         self.symptoms = [
             'Sốt', 'Ho', 'Mệt mỏi', 'Khó thở', 'Tuổi', 'Giới tính', 'Huyết áp', 'Mức cholesterol'
         ]
         self.initUI()
 
-    def load_model(self, filepath):
-        model_data = joblib.load(filepath)
-        return model_data['model'], model_data.get('feature_names', None)
+    def load_model_and_mapping(self, model_filepath, mapping_filepath):
+        model_data = joblib.load(model_filepath)
+        model = model_data['model']
+        feature_names = model_data.get('feature_names', None)
+        class_mapping = self.load_class_mapping(mapping_filepath)
+        return model, feature_names, class_mapping
+
+    def load_class_mapping(self, filepath):
+        class_mapping = {}
+        with open(filepath, 'r') as f:
+            for line in f:
+                index, class_name = line.strip().split(',')
+                class_mapping[int(index)] = class_name
+        return class_mapping
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -68,7 +83,11 @@ class DiseasePredictor(QWidget):
 
         input_df = pd.DataFrame([input_data], columns=self.feature_names)
         prediction = self.model.predict(input_df)
-        self.result_label.setText(f'Bệnh dự đoán: {prediction[0]}')
+
+        # Map prediction to disease name using the loaded class mapping
+        disease_name = self.class_mapping.get(prediction[0], 'Không xác định')
+
+        self.result_label.setText(f'Bệnh dự đoán: {disease_name}')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
