@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox, QSpinBox
 import joblib
 
 class DiseasePredictor(QWidget):
@@ -21,6 +21,15 @@ class DiseasePredictor(QWidget):
                 if symptom == 'Giới tính':
                     self.checkboxes[symptom] = QComboBox()
                     self.checkboxes[symptom].addItems(['Nam', 'Nữ'])
+                elif symptom == 'Huyết áp':
+                    self.checkboxes[symptom] = QComboBox()
+                    self.checkboxes[symptom].addItems(['Thấp', 'Bình thường', 'Cao'])
+                elif symptom == 'Mức cholesterol':
+                    self.checkboxes[symptom] = QComboBox()
+                    self.checkboxes[symptom].addItems(['Thấp', 'Bình thường', 'Cao'])
+                elif symptom == 'Tuổi':
+                    self.checkboxes[symptom] = QSpinBox()
+                    self.checkboxes[symptom].setRange(0, 120)  # Set the range for age
                 else:
                     self.checkboxes[symptom] = QLineEdit()
                 self.layout.addWidget(QLabel(symptom))
@@ -50,6 +59,8 @@ class DiseasePredictor(QWidget):
                 input_data[symptom] = widget.text()
             elif isinstance(widget, QComboBox):
                 input_data[symptom] = widget.currentText()
+            elif isinstance(widget, QSpinBox):
+                input_data[symptom] = widget.value()
 
         input_df = pd.DataFrame([input_data])
         prediction = self.model.predict(input_df)
