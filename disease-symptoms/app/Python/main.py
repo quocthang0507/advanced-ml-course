@@ -145,7 +145,7 @@ for dataset, target_column in datasets.items():
     global dataset_name
     print(f"\nResults in {dataset}:")
 
-    data_path = f'disease-symptoms/data/{dataset}'
+    data_path = f'E:/GitHub/advanced-ml-course/disease-symptoms/data/{dataset}'
     try:
         X_train, X_test, y_train, y_test = load_and_preprocess_data(
             data_path, target_column)
