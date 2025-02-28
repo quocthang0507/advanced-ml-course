@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox, QSpinBox
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QCheckBox, QPushButton, QLabel, QLineEdit, QComboBox, QSpinBox, QMessageBox
 import joblib
 from pathlib import Path
 
@@ -78,16 +78,16 @@ class DiseasePredictor(QWidget):
                 self.checkboxes[symptom] = checkbox
                 self.layout.addWidget(checkbox, row, col)
             col += 2
-            if col >= 4:
+            if col >= 10:  # 5 columns, each symptom takes 2 columns (label + input)
                 col = 0
                 row += 1
 
         self.predict_button = QPushButton('Dự đoán bệnh')
         self.predict_button.clicked.connect(self.predict_disease)
-        self.layout.addWidget(self.predict_button, row + 1, 0, 1, 4)
+        self.layout.addWidget(self.predict_button, row + 1, 0, 1, 10)
 
         self.result_label = QLabel('')
-        self.layout.addWidget(self.result_label, row + 2, 0, 1, 4)
+        self.layout.addWidget(self.result_label, row + 2, 0, 1, 10)
 
         self.setLayout(self.layout)
         self.setWindowTitle('Dự đoán bệnh')
@@ -116,7 +116,7 @@ class DiseasePredictor(QWidget):
         for disease, prob in top_5_diseases:
             result_text += f'{disease}: {prob:.2f}\n'
 
-        self.result_label.setText(result_text)
+        QMessageBox.information(self, 'Kết quả dự đoán', result_text)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
