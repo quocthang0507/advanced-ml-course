@@ -25,65 +25,70 @@ def random_forest(X_train, X_test, y_train, y_test, class_mapping):
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_prob = clf.predict_proba(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    report = classification_report(y_test, y_pred, output_dict=True)
+    report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/random_forest_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/random_forest_class_mapping_{dataset_name}.csv')
 
-    return accuracy, report
+    return accuracy, report, y_prob
 
 
 def decision_tree(X_train, X_test, y_train, y_test, class_mapping):
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_prob = clf.predict_proba(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/decision_tree_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/decision_tree_class_mapping_{dataset_name}.csv')
     
-    return accuracy, report
+    return accuracy, report, y_prob
 
 
 def svm(X_train, X_test, y_train, y_test, class_mapping):
-    clf = SVC(random_state=42)
+    clf = SVC(probability=True, random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_prob = clf.predict_proba(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/svm_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/svm_class_mapping_{dataset_name}.csv')
     
-    return accuracy, report
+    return accuracy, report, y_prob
 
 
 def logistic_regression(X_train, X_test, y_train, y_test, class_mapping):
     clf = LogisticRegression(random_state=42, max_iter=1000)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_prob = clf.predict_proba(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/logistic_regression_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/logistic_regression_class_mapping_{dataset_name}.csv')
     
-    return accuracy, report
+    return accuracy, report, y_prob
 
 
 def gradient_boosting(X_train, X_test, y_train, y_test, class_mapping):
     clf = GradientBoostingClassifier(random_state=42)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_prob = clf.predict_proba(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
 
     save_model(clf, f'disease-symptoms/app/Python/models/trained/gradient_boosting_model_{dataset_name}.pkl', feature_names=X_train.columns.tolist())
     save_class_mapping(class_mapping, f'disease-symptoms/app/Python/models/trained/gradient_boosting_class_mapping_{dataset_name}.csv')
     
-    return accuracy, report
+    return accuracy, report, y_prob
 
 
 def print_combined_report(reports, dataset_name):
@@ -124,7 +129,10 @@ def load_and_preprocess_data(data_path, target_column):
             f"'{target_column}' not found in the dataset columns: {data.columns.tolist()}")
 
     # Split the data into features and target variable
-    X = data.drop(target_column, axis=1)
+    if 'Disease' in data.columns:
+        X = data.drop(['Disease', target_column], axis=1)
+    else:
+        X = data.drop([target_column], axis=1)
     y = data[target_column]
 
     # Preprocess the features (convert categorical variables to numerical)
@@ -137,10 +145,6 @@ def load_and_preprocess_data(data_path, target_column):
     # --- Data Scaling ---
     X_train, X_test = scale_data(X_train, X_test)
 
-    # --- Handle Class Imbalance ---
-    smote = SMOTE(random_state=42)
-    X_train, y_train = smote.fit_resample(X_train, y_train)
-
     # Create class mapping
     class_mapping = {index: class_name for index, class_name in enumerate(y.unique())}
 
@@ -149,7 +153,6 @@ def load_and_preprocess_data(data_path, target_column):
 
 # Define datasets and target columns
 datasets = {
-    "dt1.csv": "Outcome Variable",
     "dt2.csv": "prognosis"
 }
 
@@ -177,7 +180,7 @@ for dataset, target_column in datasets.items():
         reports = {}
         for model_name, model_func in models.items():
             dataset_name = Path(dataset).stem
-            accuracy, report = model_func(X_train, X_test, y_train, y_test, class_mapping)
+            accuracy, report, y_prob = model_func(X_train, X_test, y_train, y_test, class_mapping)
             print(f"{model_name} Accuracy on {dataset}:", accuracy)
             reports[model_name] = report
 
