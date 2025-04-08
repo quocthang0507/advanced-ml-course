@@ -66,7 +66,6 @@ class DQNAgent:
         self.target_network = DQN(action_dim).to(self.device)
         self.target_network.load_state_dict(self.q_network.state_dict())
         self.target_network.eval()
-
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=0.0001)
         self.replay_buffer = ReplayBuffer(self.device)
         self.gamma = 0.99

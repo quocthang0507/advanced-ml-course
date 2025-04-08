@@ -54,8 +54,8 @@ class DQN(nn.Module):
         self.fc2 = nn.Linear(512, action_dim)
 
     def forward(self, x):
-        x = x.clone().detach().to(torch.float32)  # Fix tensor creation issue
-        x = x.squeeze(2)  # Remove unnecessary dimension
+        x = x.clone().detach().to(torch.float32)
+        x = x.squeeze(2)
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
         x = torch.relu(self.conv3(x))
@@ -114,20 +114,27 @@ class DQNAgent:
 
     def train(self):
         self.step_count += 1
+
         if self.step_count < self.start_training:
             return
+        
         if self.step_count % self.train_every == 0:
             states, actions, rewards, next_states, dones = self.replay_buffer.sample(self.batch_size)
+            
             q_values = self.q_network(states).gather(1, actions.unsqueeze(1)).squeeze(1)
             with torch.no_grad():
                 next_q_values = self.target_network(next_states).max(1)[0]
                 target_q_values = rewards + self.gamma * next_q_values * (1 - dones)
+            
             loss = nn.MSELoss()(q_values, target_q_values)
+            
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+
         if self.step_count % self.update_target_every == 0:
             self.target_network.load_state_dict(self.q_network.state_dict())
+        
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
     def save_model(self, filepath):
@@ -155,10 +162,12 @@ with open('training_log.txt', 'w') as f:
             done = terminated or truncated
             agent.replay_buffer.push(obs, action, reward, next_obs, done)
             agent.train()
+
             obs = next_obs
             total_reward += reward
             if done:
                 break
+            
         reward_history.append(total_reward)
         print(f"Episode {episode}, Reward: {total_reward}, Epsilon: {agent.epsilon:.4f}")
         f.write(f"{episode}\t{total_reward}\t{agent.epsilon}\n")
